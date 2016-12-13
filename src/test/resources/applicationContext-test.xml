@@ -223,7 +223,7 @@
     <!-- Ehcache实现 -->
     <bean id="ehcacheManagerFactory"
           class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
-          p:configLocation="classpath:ehcache.xml"/>
+          p:configLocation="classpath:ehcache_normal.xml"/>
 
     <bean id="ehcacheManager"
           class="org.springframework.cache.ehcache.EhCacheCacheManager"
