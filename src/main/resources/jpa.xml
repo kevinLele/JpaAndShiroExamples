@@ -80,12 +80,10 @@
 
     <!-- ***************************** jpa Entity Factory 配置 ***************************** -->
     <bean id="entityManagerFactory"
-          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="dataSource" ref="dataSource"/>
-        <!--your entity package-->
-        <property name="packagesToScan" value="com.kevin.**.entity"/>
-
-        <property name="persistenceUnitName" value="${jpa.persistenceUnitName}"/>
+          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+          p:dataSource-ref="dataSource"
+          p:packagesToScan="com.kevin.**.entity"
+          p:persistenceUnitName="${jpa.persistenceUnitName}">
         <property name="persistenceProvider">
             <bean class="org.hibernate.jpa.HibernatePersistenceProvider"/>
         </property>
@@ -105,28 +103,38 @@
                 <!--<entry key="javax.persistence.validation.factory" value-ref="validator"/>-->
                 <!-- jsr303验证模式 因为其要么验证 要么不验证 不能按照规则走 所以此处禁用 -->
                 <!-- #http://docs.jboss.org/hibernate/entitymanager/3.6/reference/en/html/configuration.html -->
-                <entry key="javax.persistence.validation.mode" value="NONE"/>
-
+                <entry key="javax.persistence.validation.mode"
+                       value="NONE"/>
                 <!-- 只扫描class文件，不扫描hbm，默认两个都搜索 -->
-                <entry key="hibernate.archive.autodetection" value="class"/>
+                <entry key="hibernate.archive.autodetection"
+                       value="class"/>
                 <!-- 不检查@NamedQuery -->
-                <entry key="hibernate.query.startup_check" value="false"/>
-
-                <entry key="hibernate.query.substitutions" value="${hibernate.query.substitutions}"/>
-                <entry key="hibernate.default_batch_fetch_size" value="${hibernate.default_batch_fetch_size}"/>
-                <entry key="hibernate.max_fetch_depth" value="${hibernate.max_fetch_depth}"/>
-                <entry key="hibernate.generate_statistics" value="${hibernate.generate_statistics}"/>
+                <entry key="hibernate.query.startup_check"
+                       value="false"/>
+                <entry key="hibernate.query.substitutions"
+                       value="${hibernate.query.substitutions}"/>
+                <entry key="hibernate.default_batch_fetch_size"
+                       value="${hibernate.default_batch_fetch_size}"/>
+                <entry key="hibernate.max_fetch_depth"
+                       value="${hibernate.max_fetch_depth}"/>
+                <entry key="hibernate.generate_statistics"
+                       value="${hibernate.generate_statistics}"/>
                 <entry key="hibernate.bytecode.use_reflection_optimizer"
                        value="${hibernate.bytecode.use_reflection_optimizer}"/>
-                <entry key="hibernate.cache.use_second_level_cache" value="${hibernate.cache.use_second_level_cache}"/>
-                <entry key="hibernate.cache.use_query_cache" value="${hibernate.cache.use_query_cache}"/>
-                <entry key="hibernate.cache.region.factory_class" value="${hibernate.cache.region.factory_class}"/>
+                <entry key="hibernate.cache.use_second_level_cache"
+                       value="${hibernate.cache.use_second_level_cache}"/>
+                <entry key="hibernate.cache.use_query_cache"
+                       value="${hibernate.cache.use_query_cache}"/>
+                <entry key="hibernate.cache.region.factory_class"
+                       value="${hibernate.cache.region.factory_class}"/>
                 <entry key="net.sf.ehcache.configurationResourceName"
                        value="${net.sf.ehcache.configurationResourceName}"/>
-                <entry key="hibernate.cache.use_structured_entries" value="${hibernate.cache.use_structured_entries}"/>
-
-                <entry key="hibernate.show_sql" value="${jpa.showSql}"/>
-                <entry key="hibernate.use_sql_comments" value="${jpa.showSql}"/>
+                <entry key="hibernate.cache.use_structured_entries"
+                       value="${hibernate.cache.use_structured_entries}"/>
+                <entry key="hibernate.show_sql"
+                       value="${jpa.showSql}"/>
+                <entry key="hibernate.use_sql_comments"
+                       value="${jpa.showSql}"/>
                 <!-- 格式化hibernate输出的sql语句方便开发人员查看 -->
                 <entry key="hibernate.format_sql" value="${jpa.showSql}"/>
             </map>
@@ -134,6 +142,8 @@
     </bean>
 
     <!-- dao -->
-    <jpa:repositories base-package="com.kevin.examples.repository" repository-impl-postfix="Impl"
-                      entity-manager-factory-ref="entityManagerFactory" transaction-manager-ref="transactionManager"/>
+    <jpa:repositories base-package="com.kevin.examples.repository"
+                      repository-impl-postfix="Impl"
+                      entity-manager-factory-ref="entityManagerFactory"
+                      transaction-manager-ref="transactionManager"/>
 </beans>
