@@ -22,11 +22,6 @@ public class JpaRealm extends AuthorizingRealm {
     @Autowired
     private UserService userService;
 
-    public JpaRealm() {
-
-        System.out.printf("init");
-    }
-
     public AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         //null usernames are invalid
         if (principals == null) {

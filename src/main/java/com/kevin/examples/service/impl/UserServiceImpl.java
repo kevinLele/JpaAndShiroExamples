@@ -20,12 +20,6 @@ import java.util.Set;
 @Service
 public class UserServiceImpl implements UserService {
 
-
-    public UserServiceImpl() {
-
-        System.out.println("init user serviceImpl");
-    }
-
     @Autowired
     private UserRepository userRepository;
 
