@@ -2,259 +2,31 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
-       xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
-       xmlns:util="http://www.springframework.org/schema/util"
-       xmlns:cache="http://www.springframework.org/schema/cache"
-       xmlns:p="http://www.springframework.org/schema/p"
-       xsi:schemaLocation="
-           http://www.springframework.org/schema/beans
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd
            http://www.springframework.org/schema/aop
            http://www.springframework.org/schema/aop/spring-aop.xsd
-           http://www.springframework.org/schema/tx
-           http://www.springframework.org/schema/tx/spring-tx.xsd
            http://www.springframework.org/schema/context
-           http://www.springframework.org/schema/context/spring-context.xsd
-           http://www.springframework.org/schema/data/jpa
-           http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
-           http://www.springframework.org/schema/util
-           http://www.springframework.org/schema/util/spring-util.xsd
-           http://www.springframework.org/schema/cache
-           http://www.springframework.org/schema/cache/spring-cache.xsd">
+           http://www.springframework.org/schema/context/spring-context.xsd">
 
     <!-- 系统配置 -->
     <context:property-placeholder location="classpath:config.properties" ignore-unresolvable="true"/>
+
+    <!-- 使用cglib进行动态代理 -->
+    <aop:aspectj-autoproxy proxy-target-class="true" expose-proxy="true"/>
 
     <!-- service包 -->
     <context:component-scan base-package="com.kevin.examples.service"/>
     <context:component-scan base-package="com.kevin.examples.restful"/>
     <context:component-scan base-package="com.kevin.examples.restful2"/>
 
-    <!-- dao -->
-    <jpa:repositories base-package="com.kevin.examples.repository" repository-impl-postfix="Impl"
-                      entity-manager-factory-ref="entityManagerFactory" transaction-manager-ref="transactionManager"/>
+    <!-- 权限相关配置 -->
+    <import resource="shiro.xml"/>
 
-    <!-- 数据源 -->
-    <!--see https://github.com/alibaba/druid/wiki/%E9%85%8D%E7%BD%AE_DruidDataSource%E5%8F%82%E8%80%83%E9%85%8D%E7%BD%AE-->
-    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
-        <!-- 基本属性 url、user、password -->
-        <property name="url" value="${connection.url}"/>
-        <property name="username" value="${connection.username}"/>
-        <property name="password" value="${connection.password}"/>
+    <!-- DAO相关配置 -->
+    <import resource="jpa.xml"/>
 
-        <!-- 配置初始化大小、最小、最大 -->
-        <property name="initialSize" value="${druid.initialSize}"/>
-        <property name="minIdle" value="${druid.minIdle}"/>
-        <property name="maxActive" value="${druid.maxActive}"/>
-
-        <!-- 配置获取连接等待超时的时间 -->
-        <property name="maxWait" value="${druid.maxWait}"/>
-        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
-        <property name="timeBetweenEvictionRunsMillis" value="${druid.timeBetweenEvictionRunsMillis}"/>
-
-        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
-        <property name="minEvictableIdleTimeMillis" value="${druid.minEvictableIdleTimeMillis}"/>
-
-        <property name="validationQuery" value="${druid.validationQuery}"/>
-        <property name="testWhileIdle" value="${druid.testWhileIdle}"/>
-        <property name="testOnBorrow" value="${druid.testOnBorrow}"/>
-        <property name="testOnReturn" value="${druid.testOnReturn}"/>
-
-        <!-- 打开PSCache，并且指定每个连接上PSCache的大小  如果用Oracle，则把poolPreparedStatements配置为true，mysql可以配置为false。-->
-        <property name="poolPreparedStatements" value="${druid.poolPreparedStatements}"/>
-        <property name="maxPoolPreparedStatementPerConnectionSize"
-                  value="${druid.maxPoolPreparedStatementPerConnectionSize}"/>
-
-        <!-- 配置监控统计拦截的filters -->
-        <property name="filters" value="${druid.filters}"/>
-
-    </bean>
-
-    <!-- ***************************** jpa Entity Factory 配置 Start ***************************** -->
-    <bean id="entityManagerFactory"
-          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="dataSource" ref="dataSource"/>
-        <!--your entity package-->
-        <property name="packagesToScan" value="com.kevin.**.entity"/>
-
-        <property name="persistenceUnitName" value="${jpa.persistenceUnitName}"/>
-        <property name="persistenceProvider">
-            <bean class="org.hibernate.jpa.HibernatePersistenceProvider"/>
-        </property>
-        <property name="jpaVendorAdapter">
-            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-                <property name="generateDdl" value="${jpa.generateDdl}"/>
-                <property name="database" value="${jpa.database}"/>
-                <property name="databasePlatform" value="${jpa.databasePlatform}"/>
-            </bean>
-        </property>
-        <property name="jpaDialect">
-            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaDialect"/>
-        </property>
-        <property name="jpaPropertyMap">
-            <map>
-                <!-- 使用自定义的validator进行jsr303验证 -->
-                <!--<entry key="javax.persistence.validation.factory" value-ref="validator"/>-->
-                <!-- jsr303验证模式 因为其要么验证 要么不验证 不能按照规则走 所以此处禁用 -->
-                <!-- #http://docs.jboss.org/hibernate/entitymanager/3.6/reference/en/html/configuration.html -->
-                <entry key="javax.persistence.validation.mode" value="NONE"/>
-
-                <!-- 只扫描class文件，不扫描hbm，默认两个都搜索 -->
-                <entry key="hibernate.archive.autodetection" value="class"/>
-                <!-- 不检查@NamedQuery -->
-                <entry key="hibernate.query.startup_check" value="false"/>
-
-                <entry key="hibernate.query.substitutions" value="${hibernate.query.substitutions}"/>
-                <entry key="hibernate.default_batch_fetch_size" value="${hibernate.default_batch_fetch_size}"/>
-                <entry key="hibernate.max_fetch_depth" value="${hibernate.max_fetch_depth}"/>
-                <entry key="hibernate.generate_statistics" value="${hibernate.generate_statistics}"/>
-                <entry key="hibernate.bytecode.use_reflection_optimizer"
-                       value="${hibernate.bytecode.use_reflection_optimizer}"/>
-                <entry key="hibernate.cache.use_second_level_cache" value="${hibernate.cache.use_second_level_cache}"/>
-                <entry key="hibernate.cache.use_query_cache" value="${hibernate.cache.use_query_cache}"/>
-                <entry key="hibernate.cache.region.factory_class" value="${hibernate.cache.region.factory_class}"/>
-                <entry key="net.sf.ehcache.configurationResourceName"
-                       value="${net.sf.ehcache.configurationResourceName}"/>
-                <entry key="hibernate.cache.use_structured_entries" value="${hibernate.cache.use_structured_entries}"/>
-
-                <entry key="hibernate.show_sql" value="${jpa.showSql}"/>
-                <entry key="hibernate.use_sql_comments" value="${jpa.showSql}"/>
-                <!-- 格式化hibernate输出的sql语句方便开发人员查看 -->
-                <entry key="hibernate.format_sql" value="${jpa.showSql}"/>
-            </map>
-        </property>
-    </bean>
-    <!-- ***************************** jpa Entity Factory 配置 End ***************************** -->
-
-    <!-- ***************************** Shiro 相关配置 Start ***************************** -->
-    <bean id="jdbcRealm" class="org.apache.shiro.realm.jdbc.JdbcRealm">
-        <property name="dataSource" ref="dataSource"/>
-        <property name="credentialsMatcher">
-            <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
-                <property name="hashAlgorithmName" value="MD5"/>
-                <!-- true means hex encoded, false means base64 encoded -->
-                <property name="storedCredentialsHexEncoded" value="true"/>
-            </bean>
-        </property>
-    </bean>
-
-    <bean id="jpaRealm" class="com.kevin.examples.shiro.Realm.JpaRealm">
-        <property name="credentialsMatcher">
-            <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
-                <property name="hashAlgorithmName" value="MD5"/>
-                <!-- true means hex encoded, false means base64 encoded -->
-                <property name="storedCredentialsHexEncoded" value="true"/>
-            </bean>
-        </property>
-    </bean>
-
-    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
-        <!-- Single realm app.  If you have multiple realms, use the 'realms' property instead. -->
-        <property name="realm" ref="jpaRealm"/>
-    </bean>
-
-    <!-- 基于Form表单的身份验证过滤器-->
-    <bean id="formAuthenticationFilter"
-          class="org.apache.shiro.web.filter.authc.FormAuthenticationFilter">
-        <property name="usernameParam" value="username"/>
-        <property name="passwordParam" value="password"/>
-        <property name="loginUrl" value="/login.jsp"/>
-    </bean>
-
-    <!-- Shiro 的Web过滤器-->
-    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
-        <property name="securityManager" ref="securityManager"/>
-        <property name="loginUrl" value="/login.jsp"/>
-        <property name="unauthorizedUrl" value="/unauthorized.jsp"/>
-        <property name="filters">
-            <util:map>
-                <entry key="authc" value-ref="formAuthenticationFilter"/>
-            </util:map>
-        </property>
-        <property name="filterChainDefinitions">
-            <value>
-                /index.jsp = anon
-                /unauthorized.jsp = anon
-                /login.jsp = authc
-                /logout = logout
-                /** = user
-            </value>
-        </property>
-    </bean>
-
-    <!-- For simplest integration, so that all SecurityUtils.* methods work in all cases, -->
-    <!-- make the securityManager bean a static singleton.  DO NOT do this in web         -->
-    <!-- applications - see the 'Web Applications' section below instead.                 -->
-    <!--  相当于调用SecurityUtils.setSecurityManager(securityManager) -->
-    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
-          p:staticMethod="org.apache.shiro.SecurityUtils.setSecurityManager"
-          p:arguments-ref="securityManager"/>
-
-    <!--
-        Bean post processor for Spring that automatically calls the init() and/or destroy() methods
-        on Shiro objects that implement the Initializable or Destroyable interfaces, respectfully.
-        This post processor makes it easier to configure Shiro beans in Spring,
-        since the user never has to worry about whether or not if they have to specify init-method and destroy-method bean attributes.
-    -->
-    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
-
-    <!-- Enable Shiro Annotations for Spring-configured beans.  Only run after -->
-    <!-- the lifecycleBeanProcessor has run: -->
-    <!--<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor"/>-->
-    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor"
-          p:securityManager-ref="securityManager"/>
-    <!-- ***************************** Shiro 相关配置 End ***************************** -->
-
-    <bean id="transactionManager"
-          class="org.springframework.orm.jpa.JpaTransactionManager"
-          p:entityManagerFactory-ref="entityManagerFactory"/>
-
-    <bean id="normalCacheManager" class="org.springframework.cache.support.SimpleCacheManager">
-        <property name="caches">
-            <set>
-                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
-                      p:name="userCache"/>
-            </set>
-        </property>
-    </bean>
-
-    <!-- Ehcache实现 -->
-    <bean id="ehcacheManagerFactory"
-          class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
-          p:configLocation="classpath:ehcache.xml"/>
-
-    <bean id="ehcacheManager"
-          class="org.springframework.cache.ehcache.EhCacheCacheManager"
-          p:cache-manager-ref="ehcacheManagerFactory"/>
-
-    <!-- 事务 -->
-    <tx:advice id="txAdvice" transaction-manager="transactionManager">
-        <tx:attributes>
-            <tx:method name="*"/>
-            <tx:method name="get*" read-only="true"/>
-            <tx:method name="find*" read-only="false"/>
-            <tx:method name="select*" read-only="true"/>
-            <tx:method name="delete*" propagation="REQUIRED"/>
-            <tx:method name="update*" propagation="REQUIRED"/>
-            <tx:method name="add*" propagation="REQUIRED"/>
-            <tx:method name="insert*" propagation="REQUIRED"/>
-        </tx:attributes>
-    </tx:advice>
-
-    <!-- 事务入口 -->
-    <aop:config proxy-target-class="true" expose-proxy="true">
-        <aop:pointcut id="allServiceMethod" expression="execution(* com.kevin.examples.service.*.*(..))"/>
-        <aop:advisor pointcut-ref="allServiceMethod" advice-ref="txAdvice"/>
-    </aop:config>
-
-    <!-- 支持注解方式声明式事务 -->
-    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
-
-    <!-- 支持注解缓存 -->
-    <cache:annotation-driven cache-manager="ehcacheManager" proxy-target-class="true"/>
-
-    <!-- 使用cglib进行动态代理 -->
-    <aop:aspectj-autoproxy proxy-target-class="true" expose-proxy="true"/>
+    <!-- 缓存相关配置 -->
+    <import resource="cache.xml"/>
 </beans>
