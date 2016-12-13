@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+      <!--<Pattern>%caller{2} %file %d{HH:mm:ss.SSS} [%thread] %-5level %logger %class - %msg%n</Pattern>-->
+      <!--<Pattern>%xThrowable%d{yyyyMMdd HH:mm:ss.SSS} [%thread] %-5level %logger %class\(%L\) - %msg%n</Pattern>-->
+      <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+        <pattern>%xThrowable%d{yyyyMMdd HH:mm:ss.SSS} [%thread] %-5level %logger %class\(%L\) - %msg%n</pattern>
+      </encoder>
+  </appender>
+
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>MyLog.log</file>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>%xThrowable%d{yyyyMMdd HH:mm:ss.SSS} [%thread] %-5level %logger %class\(%L\) - %msg%n</pattern>
+    </encoder>
+  </appender>
+  
+  <logger name="com.kevin.examples" level="TRACE"/>
+  <logger name="org.hibernate.engine.internal" level="warn" />
+  <logger name="org.hibernate.loader" level="warn" />
+  
+
+  <root level="info">
+    <appender-ref ref="STDOUT" />
+    <appender-ref ref="FILE" />
+  </root>
+</configuration>
