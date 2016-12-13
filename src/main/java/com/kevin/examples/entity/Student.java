@@ -2,6 +2,7 @@ package com.kevin.examples.entity;
 
 import com.kevin.examples.entity.enums.SexEnum;
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,6 +13,7 @@ import java.io.Serializable;
 @Data
 @Entity
 @Table(name = "student")
+@ToString(exclude = "address")
 public class Student implements Serializable {
 
     @Id

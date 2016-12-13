@@ -31,7 +31,7 @@ public class TestServiceImpl implements TestService {
         userRepository.save(user2);
 
         if (throwException) {
-            throw new RuntimeException("test Exception rollback");
+            //throw new RuntimeException("test Exception rollback");
         }
 
         System.out.println("test check");

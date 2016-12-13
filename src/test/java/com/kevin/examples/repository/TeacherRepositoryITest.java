@@ -21,10 +21,10 @@ public class TeacherRepositoryITest extends BaseIT {
 
         Teacher teacher = teacherRepository.findOne(1);
 
-        for (Student student : teacher.getStudentList()) {
+        /*for (Student student : teacher.getStudentList()) {
             log.warn(student.toString());
         }
-
+*/
         log.warn(teacher.toString());
     }
 }

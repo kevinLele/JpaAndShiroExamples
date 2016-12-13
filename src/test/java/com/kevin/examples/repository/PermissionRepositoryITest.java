@@ -137,7 +137,7 @@ public class PermissionRepositoryITest extends BaseIT {
     @Test
     public void testFindByName() {
 
-        PermissionVO vo = permissionRepository.findByName("name1");
+        PermissionVO vo = permissionRepository.findByName("name12asdf");
         System.out.println(vo);
     }
 
