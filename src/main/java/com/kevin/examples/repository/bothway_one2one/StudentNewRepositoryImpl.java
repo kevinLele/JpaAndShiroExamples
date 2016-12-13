@@ -69,7 +69,7 @@ public class StudentNewRepositoryImpl implements StudentNewRepositoryCustom {
         //root.join(root.getModel().getSingularAttribute(""));
 
         //cq4.multiselect(root1,root2);
-        cq4.multiselect(root1,card);
+        cq4.select(root1);
         cq4.where(cb4.like(root1.get(StudentNew_.name), "%name2%"));
         cq4.where(cb4.like(card.get(Card_.cardNo),"%123%"));
 
