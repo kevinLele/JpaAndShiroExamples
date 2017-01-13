@@ -449,6 +449,7 @@
                 <shiro.uid.cookie.path>/</shiro.uid.cookie.path>
             </properties>
         </profile>
+
         <profile>
             <!-- integration test -->
             <id>it</id>
